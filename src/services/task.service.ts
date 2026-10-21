@@ -5,13 +5,12 @@ import {
   findAll,
   findById,
   findByTitle,
+  updateTask,
 } from "../repositories/task.repository.js";
-import { CreateTask } from "../schemas/task.schema.js";
+import type { CreateTask, UpdateTask } from "../schemas/task.schema.js";
 
 export const getTasksService = async () => {
-  const tasks = await findAll();
-
-  return tasks;
+  return findAll();
 };
 
 export const createTaskService = async (task: CreateTask) => {
@@ -21,17 +20,23 @@ export const createTaskService = async (task: CreateTask) => {
     throw new AppError("La tarea ya existe", 409);
   }
 
-  const newTask = await createTask(task);
-
-  return newTask;
+  return createTask(task);
 };
 
 export const deleteTaskService = async (id: string) => {
-  const taskExists = await findById(id);
+  const deletedTask = await deleteById(id);
 
-  if (!taskExists) {
+  if (!deletedTask) {
+    throw new AppError("La tarea no existe", 404);
+  }
+};
+
+export const updateTaskService = async (id: string, task: UpdateTask) => {
+  const updatedTask = await updateTask(id, task);
+
+  if (!updatedTask) {
     throw new AppError("La tarea no existe", 404);
   }
 
-  await deleteById(id);
+  return updatedTask;
 };

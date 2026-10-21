@@ -3,9 +3,9 @@ import {
   createTaskService,
   deleteTaskService,
   getTasksService,
+  updateTaskService,
 } from "../services/task.service.js";
-import { CreateTask } from "../schemas/task.schema.js";
-import mongoose from "mongoose";
+import { CreateTask, UpdateTask } from "../schemas/task.schema.js";
 
 export const getTasks = async (req: Request, res: Response) => {
   const tasks = await getTasksService();
@@ -21,18 +21,25 @@ export const createTask = async (req: Request, res: Response) => {
   return res.status(201).json(newTask);
 };
 
-export const deleteTask = async (req: Request, res: Response) => {
+export const deleteTask = async (
+  req: Request<{ id: string }>,
+  res: Response,
+) => {
   const { id } = req.params;
-
-  if (typeof id !== "string") {
-    return res.status(400).json({ message: "El id debe ser un string" });
-  }
-
-  if (!mongoose.isValidObjectId(id)) {
-    return res.status(400).json({ message: "El id no es valido" });
-  }
 
   await deleteTaskService(id);
 
   return res.sendStatus(204);
+};
+
+export const updateTask = async (
+  req: Request<{ id: string }>,
+  res: Response,
+) => {
+  const { id } = req.params;
+  const task: UpdateTask = req.body;
+
+  const updatedTask = await updateTaskService(id, task);
+
+  return res.status(200).json(updatedTask);
 };
